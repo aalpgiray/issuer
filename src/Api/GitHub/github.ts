@@ -1,10 +1,51 @@
 import { IIssue, IUser } from "./github.types";
 
-export async function getIssues(): Promise<IIssue[]> {
-    return await fetch('https://api.github.com/repos/atom/atom/issues?per_page=100&page=1&state=all&filter=all&labels=uncaught-exception&sort=created&direction=desc&since=2000-01-01T00:00:00Z')
-        .then(r => r.json());
+
+interface IGetIssueParameters {
+    perPage?: number;
+    page?: number;
+    milestone?: number | "*";
+    state?: "open" | "closed" | "all";
+    assignee?: string | "none" | "*";
+    creator?: string;
+    mentioned?: string;
+    labels?: string;
+    sort?: "created" | "updated" | "comments";
+    direction?: "asc" | "desc";
+    since?: string;
+    filter?: "assigned" | "created" | "mentioned" | "subscribed" | "all";
 }
 
+export async function getIssues({
+    assignee,
+    creator,
+    direction,
+    labels,
+    mentioned,
+    page,
+    perPage,
+    milestone,
+    since,
+    sort,
+    state,
+    filter
+}: IGetIssueParameters): Promise<IIssue[]> {
+    return await fetch(`https://api.github.com/repos/atom/atom/issues?access_token=41b0c9055478f11dbf03c975dfa29bd0868f5419&
+            ${perPage ? `per_page=${perPage}&` : ""}
+            ${page ? `page=${page}&` : ""}
+            ${state ? `state=${state}&` : ""}
+            ${filter ? `filter=${filter}&` : ""}
+            ${labels ? `labels=${labels}&` : ""}
+            ${sort ? `sort=${sort}&` : ""}
+            ${assignee ? `assignee=${assignee}&` : ""}
+            ${creator ? `creator=${creator}&` : ""}
+            ${direction ? `direction=${direction}&` : ""}
+            ${mentioned ? `mentioned=${mentioned}&` : ""}
+            ${milestone ? `milestone=${milestone}&` : ""}
+            ${since ? `since=${since}&` : ""}
+        `.replace(/ /g, ''))
+        .then(r => r.json());
+}
 
 /**
  * To take all collabrators via this endpoint "/projects/:id/collaborators" you must be admin.
@@ -16,7 +57,7 @@ export async function getIssues(): Promise<IIssue[]> {
  * Note: It only allows me to fetch 100 records per page, so there is a strong chance that we have more contributers.
  */
 export async function getUsers(): Promise<IUser[]> {
-    return await fetch('https://api.github.com/repos/atom/atom/issues?per_page=100&assignee=*&state=all')
+    return await fetch('https://api.github.com/repos/atom/atom/issues?access_token=41b0c9055478f11dbf03c975dfa29bd0868f5419&per_page=100&assignee=*&state=all')
         .then(r => r.json() as Promise<IIssue[]>)
         .then(assignees =>
             assignees

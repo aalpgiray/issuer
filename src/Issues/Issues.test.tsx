@@ -2,12 +2,12 @@ import * as React from 'react';
 // import { Component } from 'react';
 import * as ReactDOM from 'react-dom';
 // import { findRenderedDOMComponentWithClass, renderIntoDocument, Simulate } from 'react-dom/test-utils';
-import App from './App';
+import Issues from './Issues';
 
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
-  ReactDOM.render(<App />, div);
+  ReactDOM.render(<Issues />, div);
   ReactDOM.unmountComponentAtNode(div);
 });
 

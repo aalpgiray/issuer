@@ -1,86 +1,47 @@
 import * as React from 'react';
-// import { hot } from "react-hot-loader";
-import * as ReactMarkdown from "react-markdown";
-import { Image, Label, Popup, Table } from 'semantic-ui-react'
-import { getIssues } from './Api/GitHub/github';
-import { IIssue } from './Api/GitHub/github.types';
-import './App.css';
-import { calculateColor } from './Helpers/luma';
+import { Component } from 'react';
+import { hot } from 'react-hot-loader';
+import { BrowserRouter, Route } from "react-router-dom";
+import { getUsers } from "./Api/GitHub/github";
+import { IUser } from './Api/GitHub/github.types';
+import Filter from './Filter';
+import Issues from './Issues';
+import Navbar from "./Navbar";
 
-interface IAppState {
-  issues: IIssue[];
+export interface IApplicationContext {
+    users: IUser[]
+};
+
+// tslint:disable-next-line:no-empty
+export const ApplicationContext = React.createContext<IApplicationContext>({ users: [] as IUser[] });
+
+class App extends Component<{}, IApplicationContext> {
+    public state = {
+        users: []
+    }
+    public componentDidMount() {
+        this.getUsers();
+    }
+    public getUsers = () => {
+        getUsers()
+            .then(users => this.setState({
+                ...this.state,
+                users
+            }))
+
+        return <React.Fragment />
+    }
+    public render() {
+        return <ApplicationContext.Provider value={this.state}>
+            <BrowserRouter>
+                <React.Fragment>
+                    <Navbar />
+                    <Route exact={true} path="/" component={Issues} />
+                    <Route path="/filters" component={Filter} />
+                </React.Fragment>
+            </BrowserRouter >
+        </ApplicationContext.Provider>;
+    }
 }
 
-class App extends React.Component<any, IAppState> {
-  public state = {
-    count: 1,
-    issues: [] as IIssue[],
-  }
-  public async componentDidMount() {
-    const issues = await getIssues();
-    this.setState({ issues });
-  }
-  public render() {
-
-    return (
-      <div className="App">
-        <Table inverted={true} celled={true} padded={true}>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell singleLine={true}>User</Table.HeaderCell>
-              <Table.HeaderCell singleLine={true}>Title</Table.HeaderCell>
-              <Table.HeaderCell singleLine={true}>Labels</Table.HeaderCell>
-              <Table.HeaderCell singleLine={true}>Status</Table.HeaderCell>
-              <Table.HeaderCell singleLine={true}>Date Created</Table.HeaderCell>
-              <Table.HeaderCell singleLine={true}>Issue</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            {this.state.issues.map(issue => (
-              <Table.Row key={issue.id}>
-                <Table.Cell>
-                  <Popup
-                    inverted={true}
-                    trigger={
-                      // tslint:disable-next-line:jsx-no-lambda
-                      <Image circular={true} src={issue.user.avatar_url} size="tiny" onClick={() => window.open(issue.user.html_url)} />
-                    }
-                    content={issue.user.login}
-                  />
-                </Table.Cell>
-                <Table.Cell verticalAlign="top">
-                  {issue.title}
-                </Table.Cell>
-                <Table.Cell singleLine={true} verticalAlign="top">
-                  <Label.Group>
-                    {issue.labels.map(l => <Label style={{ background: '#' + l.color, filter: "sepia(0.3)", color: calculateColor(l.color) }} key={l.id}>{l.name}</Label>)}
-                  </Label.Group>
-                </Table.Cell>
-                <Table.Cell verticalAlign="top">
-                  {issue.state}
-                  {/* <Rating icon='star' defaultRating={3} maxRating={3} /> */}
-                </Table.Cell>
-                <Table.Cell singleLine={true} verticalAlign="top">
-                  <b>
-                    {new Date(issue.created_at).toLocaleString()}
-                  </b>
-                </Table.Cell>
-                <Table.Cell verticalAlign="top" width={8} style={{
-                  display: "block",
-                  maxHeight: "16em",
-                  overflow: "hidden",
-                }}>
-                  <ReactMarkdown source={issue.body} />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </div>
-    );
-  }
-}
-
-// export default hot(module)(App);
-export default App;
+export default hot(module)(App);

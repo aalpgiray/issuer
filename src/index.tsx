@@ -1,10 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import 'semantic-ui-css/semantic.min.css';
-import Entry from "./Entry";
+import Entry from "./App";
 import './index.css';
 import registerServiceWorker from './registerServiceWorker';
-
 
 ReactDOM.render(<Entry />,
   document.getElementById('root') as HTMLElement
