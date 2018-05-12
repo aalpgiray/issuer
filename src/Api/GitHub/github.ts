@@ -1,7 +1,7 @@
 import { IIssue, IUser } from "./github.types";
 
 
-interface IGetIssueParameters {
+export interface IGetIssueParameters {
     perPage?: number;
     page?: number;
     milestone?: number | "*";
@@ -57,7 +57,7 @@ export async function getIssues({
  * Note: It only allows me to fetch 100 records per page, so there is a strong chance that we have more contributers.
  */
 export async function getUsers(): Promise<IUser[]> {
-    return await fetch('https://api.github.com/repos/atom/atom/issues?access_token=41b0c9055478f11dbf03c975dfa29bd0868f5419&per_page=100&assignee=*&state=all')
+    return await fetch('https://api.github.com/repos/atom/atom/issues?access_token=41b0c9055478f11dbf03c975dfa29bd0868f5419&per_page=99999&page=1&assignee=*&state=all')
         .then(r => r.json() as Promise<IIssue[]>)
         .then(assignees =>
             assignees
